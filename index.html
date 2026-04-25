@@ -31,8 +31,6 @@
   .field label{font-size:13px;color:#374151;display:block;margin-bottom:6px;font-weight:500}
   .field input,.field select{width:100%;font-size:14px;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111;outline:none;transition:border .15s}
   .field input:focus,.field select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-  .hint{font-size:11px;color:#9ca3af;margin-top:5px}
-  .hint a{color:#2563eb;text-decoration:none}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .btn{width:100%;padding:12px;font-size:15px;font-weight:600;background:#1d4ed8;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
   .btn:hover{background:#1e40af}
@@ -100,20 +98,6 @@
     </div>
 
     <div class="card">
-      <div class="card-lbl">API Keys</div>
-      <div class="field">
-        <label>AssemblyAI API Key *</label>
-        <input type="password" id="aai-key" placeholder="Your AssemblyAI key" oninput="chkBtn()">
-        <div class="hint">Free at <a href="https://assemblyai.com" target="_blank">assemblyai.com</a> — 100 hours free</div>
-      </div>
-      <div class="field" style="margin:0">
-        <label>Anthropic (Claude) API Key *</label>
-        <input type="password" id="ant-key" placeholder="sk-ant-..." oninput="chkBtn()">
-        <div class="hint">From <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-lbl">Call context (optional)</div>
       <div class="two-col">
         <div class="field" style="margin:0">
@@ -137,12 +121,12 @@
         <input type="text" id="bname" placeholder="e.g. Viva Beauty & Wellness, Bangalore">
       </div>
     </div>
-    <button class="btn" id="sbtn" onclick="startProcess()" disabled>🚀 Transcribe & Analyse Call</button>
+    <button class="btn" id="sbtn" onclick="startProcess()">🚀 Transcribe & Analyse Call</button>
   </div>
 
   <div id="p-proc" class="hidden">
     <div class="card">
-      <div class="card-lbl" id="proc-lbl">Uploading audio...</div>
+      <div class="card-lbl" id="proc-lbl">Processing...</div>
       <div class="progress-bar"><div class="pfill" id="pfill" style="width:8%"></div></div>
       <div class="smsg" id="smsg">Please wait...</div>
     </div>
@@ -170,27 +154,25 @@
 
 <script>
 let audioFile=null;
-function handleFile(i){if(!i.files[0])return;audioFile=i.files[0];document.getElementById('uzone').classList.add('has-file');document.getElementById('umain').innerHTML='<span class="fn">✅ '+audioFile.name+'</span>';chkBtn()}
-function chkBtn(){const f=!!audioFile,a=document.getElementById('aai-key').value.trim().length>5,b=document.getElementById('ant-key').value.trim().length>10;document.getElementById('sbtn').disabled=!(f&&a&&b)}
+function handleFile(i){if(!i.files[0])return;audioFile=i.files[0];document.getElementById('uzone').classList.add('has-file');document.getElementById('umain').innerHTML='<span class="fn">✅ '+audioFile.name+'</span>';}
 function setStep(n){[1,2,3].forEach(i=>{const e=document.getElementById('step'+i);e.className='step'+(i<n?' done':i===n?' active':'')})}
 function setProg(p,m){document.getElementById('pfill').style.width=p+'%';document.getElementById('smsg').textContent=m}
 function fmtT(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(''+(s%60)).padStart(2,'0')}
 
 async function startProcess(){
-  const aaiKey=document.getElementById('aai-key').value.trim();
-  const antKey=document.getElementById('ant-key').value.trim();
+  if(!audioFile){alert('Please upload an audio file first!');return;}
   document.getElementById('p-upload').classList.add('hidden');
   document.getElementById('p-proc').classList.remove('hidden');
   setStep(2);
   try{
     setProg(12,'Uploading audio file...');
     const fd=new FormData();fd.append('audio',audioFile);
-    const up=await fetch('/api/upload',{method:'POST',headers:{'x-assemblyai-key':aaiKey},body:fd});
+    const up=await fetch('/api/upload',{method:'POST',body:fd});
     if(!up.ok){const e=await up.json();throw new Error('Upload failed: '+(e.error||up.status))}
     const{upload_url}=await up.json();
 
     setProg(28,'Submitting for transcription...');
-    const tx=await fetch('/api/transcript',{method:'POST',headers:{'x-assemblyai-key':aaiKey,'content-type':'application/json'},body:JSON.stringify({audio_url:upload_url,speaker_labels:true,language_detection:true})});
+    const tx=await fetch('/api/transcript',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({audio_url:upload_url,speaker_labels:true,language_detection:true})});
     if(!tx.ok){const e=await tx.json();throw new Error('Transcript request failed: '+(e.error||tx.status))}
     const{id}=await tx.json();
 
@@ -199,16 +181,16 @@ async function startProcess(){
     while(true){
       await new Promise(r=>setTimeout(r,4000));
       attempts++;
-      const poll=await fetch('/api/transcript/'+id,{headers:{'x-assemblyai-key':aaiKey}});
+      const poll=await fetch('/api/transcript/'+id);
       result=await poll.json();
       if(result.status==='completed')break;
       if(result.status==='error')throw new Error('Transcription error: '+(result.error||'unknown'));
       const p=Math.min(38+attempts*5,88);
       setProg(p,'Transcribing... ('+Math.round(p)+'%)');
     }
-    setProg(100,'Done! Building results...');
+    setProg(100,'Done!');
     await new Promise(r=>setTimeout(r,500));
-    showResults(result,antKey);
+    showResults(result);
   }catch(err){
     document.getElementById('proc-lbl').textContent='Error';
     document.getElementById('smsg').style.color='#dc2626';
@@ -216,19 +198,19 @@ async function startProcess(){
   }
 }
 
-function showResults(result,antKey){
+function showResults(result){
   document.getElementById('p-proc').classList.add('hidden');
   document.getElementById('p-result').classList.remove('hidden');
   setStep(3);
   const wrap=document.getElementById('txwrap');
   const utts=result.utterances||[];
   const spks=[...new Set(utts.map(u=>u.speaker))];
-  if(!utts.length){wrap.innerHTML='<div style="font-size:14px;color:#666">'+(result.text||'No transcript available')+'</div>';return;}
+  if(!utts.length){wrap.innerHTML='<div style="font-size:14px;color:#666">'+(result.text||'No transcript')+'</div>';return;}
   wrap.innerHTML=utts.map(u=>{const i=spks.indexOf(u.speaker);return`<div class="utt"><span class="sbadge s${i%4}">${i===0?'Agent':'Caller'} ${u.speaker}</span><div><div class="utt-text">${u.text}</div><div class="utt-time">${fmtT(u.start)}</div></div></div>`}).join('');
-  runAnalysis(utts,spks,antKey);
+  runAnalysis(utts,spks);
 }
 
-async function runAnalysis(utts,spks,antKey){
+async function runAnalysis(utts,spks){
   const ctype=document.getElementById('ctype').value;
   const aname=document.getElementById('aname').value.trim()||'the agent';
   const bname=document.getElementById('bname').value.trim()||'the business';
@@ -236,26 +218,14 @@ async function runAnalysis(utts,spks,antKey){
   let pct=15;
   const ticker=setInterval(()=>{pct=Math.min(pct+2,88);prog.style.width=pct+'%'},600);
   const txText=utts.map(u=>(spks.indexOf(u.speaker)===0?'Agent':'Caller')+': '+u.text).join('\n');
-
-  const prompt=`You are a call quality analyst for ${ctype}s at ${bname}. Agent: ${aname}.
-
-Analyse this transcript and return ONLY a JSON object (no markdown, no explanation):
-
-TRANSCRIPT:
-${txText}
-
-Return exactly this JSON:
-{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","issues":[{"severity":"high|medium|low","text":"<issue>"}],"strengths":["<strength>"],"script_gaps":["<gap>"],"recommendations":["<action>"],"lead_outcome":"<Converted|Interested|Lost|Unknown>"}`;
-
+  const prompt=`You are a call quality analyst for ${ctype}s at ${bname}. Agent: ${aname}.\n\nAnalyse this transcript and return ONLY a JSON object (no markdown):\n\nTRANSCRIPT:\n${txText}\n\nReturn exactly this JSON:\n{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","issues":[{"severity":"high|medium|low","text":"<issue>"}],"strengths":["<strength>"],"script_gaps":["<gap>"],"recommendations":["<action>"],"lead_outcome":"<Converted|Interested|Lost|Unknown>"}`;
   try{
-    const resp=await fetch('/api/analyse',{method:'POST',headers:{'x-anthropic-key':antKey,'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    const resp=await fetch('/api/analyse',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
     clearInterval(ticker);prog.style.width='100%';
     if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'Claude API error '+resp.status)}
     const data=await resp.json();
     const raw=data.content.map(c=>c.text||'').join('');
-    let a;
-    try{a=JSON.parse(raw.replace(/```json|```/g,'').trim())}catch(e){throw new Error('Parse error: '+raw.substring(0,200))}
-
+    let a;try{a=JSON.parse(raw.replace(/```json|```/g,'').trim())}catch(e){throw new Error('Parse error')}
     document.getElementById('an-loading').classList.add('hidden');
     document.getElementById('an-content').classList.remove('hidden');
     const sc=a.score;
@@ -264,7 +234,6 @@ Return exactly this JSON:
     const obg={Converted:'#f0fdf4',Interested:'#eff6ff',Lost:'#fef2f2',Unknown:'#f9fafb'};
     const otx={Converted:'#15803d',Interested:'#1d4ed8',Lost:'#dc2626',Unknown:'#6b7280'};
     const out=a.lead_outcome||'Unknown';
-
     document.getElementById('an-content').innerHTML=`
       <div class="metrics">
         <div class="mbox"><div class="mlbl">Call score</div><div class="mval ${scls}">${sc}</div><div class="msub">${a.score_label}</div></div>
@@ -282,32 +251,16 @@ Return exactly this JSON:
       <div id="ti" class="tp active">${(a.issues||[]).length?(a.issues||[]).map(i=>`<div class="li"><div class="dot ${dc(i.severity)}"></div><div><div class="it">${i.text}</div><div class="is">${i.severity} severity</div></div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No major issues ✅</div>'}</div>
       <div id="ts" class="tp">${(a.script_gaps||[]).length?(a.script_gaps||[]).map(g=>`<div class="li"><div class="dot da"></div><div class="it">${g}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No gaps detected</div>'}</div>
       <div id="tst" class="tp">${(a.strengths||[]).length?(a.strengths||[]).map(s=>`<div class="li"><div class="dot dg"></div><div class="it">${s}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">None identified</div>'}</div>
-      <div id="tr" class="tp">${(a.recommendations||[]).length?(a.recommendations||[]).map(r=>`<div class="li"><div class="dot db"></div><div class="it">${r}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No recommendations</div>'}</div>
-    `;
+      <div id="tr" class="tp">${(a.recommendations||[]).length?(a.recommendations||[]).map(r=>`<div class="li"><div class="dot db"></div><div class="it">${r}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No recommendations</div>'}</div>`;
   }catch(err){
     clearInterval(ticker);
     document.getElementById('an-loading').classList.add('hidden');
     document.getElementById('an-error').classList.remove('hidden');
-    document.getElementById('an-error').innerHTML='<div class="errbox">❌ Analysis failed: '+err.message+'</div>';
+    document.getElementById('an-error').innerHTML='<div class="errbox">❌ '+err.message+'</div>';
   }
 }
-
 function swTab(btn,id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active')}
-
-function resetAll(){
-  audioFile=null;
-  document.getElementById('p-upload').classList.remove('hidden');
-  document.getElementById('p-proc').classList.add('hidden');
-  document.getElementById('p-result').classList.add('hidden');
-  document.getElementById('an-loading').classList.remove('hidden');
-  document.getElementById('an-content').classList.add('hidden');
-  document.getElementById('an-error').classList.add('hidden');
-  document.getElementById('uzone').classList.remove('has-file');
-  document.getElementById('umain').textContent='Click to upload audio file';
-  document.getElementById('finput').value='';
-  document.getElementById('sbtn').disabled=true;
-  setStep(1);
-}
+function resetAll(){audioFile=null;document.getElementById('p-upload').classList.remove('hidden');document.getElementById('p-proc').classList.add('hidden');document.getElementById('p-result').classList.add('hidden');document.getElementById('an-loading').classList.remove('hidden');document.getElementById('an-content').classList.add('hidden');document.getElementById('an-error').classList.add('hidden');document.getElementById('uzone').classList.remove('has-file');document.getElementById('umain').textContent='Click to upload audio file';document.getElementById('finput').value='';setStep(1);}
 </script>
 </body>
 </html>
