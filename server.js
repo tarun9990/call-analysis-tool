@@ -9,7 +9,7 @@ const app = express();
 const upload = multer({ dest: 'uploads/', limits: { fileSize: 150 * 1024 * 1024 } });
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 
 // ── AssemblyAI: upload audio file ──────────────────────────────────────────
 app.post('/api/upload', upload.single('audio'), async (req, res) => {
