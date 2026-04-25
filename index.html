@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call Analysis Tool</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;min-height:100vh;padding:2rem 1rem;color:#1a1a1a}
+  .container{max-width:740px;margin:0 auto}
+  h1{font-size:22px;font-weight:600;color:#111;margin-bottom:4px}
+  .sub{font-size:14px;color:#666;margin-bottom:1.5rem}
+  .steps{display:flex;gap:8px;margin-bottom:1.5rem}
+  .step{flex:1;padding:10px 14px;border-radius:8px;border:1px solid #ddd;font-size:12px;color:#888;background:#fff}
+  .step .num{font-weight:600;display:block;font-size:13px;color:#555}
+  .step.active{border-color:#2563eb;color:#1d4ed8;background:#eff6ff}
+  .step.active .num{color:#1d4ed8}
+  .step.done{border-color:#16a34a;color:#15803d;background:#f0fdf4}
+  .step.done .num{color:#15803d}
+  .card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+  .card-lbl{font-size:11px;color:#888;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .upload-zone{border:2px dashed #d1d5db;border-radius:8px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .15s}
+  .upload-zone:hover{background:#f9fafb;border-color:#9ca3af}
+  .upload-zone.has-file{border-style:solid;border-color:#2563eb;background:#eff6ff}
+  .upload-icon{font-size:32px;margin-bottom:10px}
+  .upload-zone .mt{font-size:15px;color:#374151;font-weight:500}
+  .upload-zone .st{font-size:12px;color:#9ca3af;margin-top:4px}
+  .fn{font-size:14px;font-weight:600;color:#1d4ed8}
+  input[type=file]{display:none}
+  .field{margin-bottom:14px}
+  .field label{font-size:13px;color:#374151;display:block;margin-bottom:6px;font-weight:500}
+  .field input,.field select{width:100%;font-size:14px;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111;outline:none;transition:border .15s}
+  .field input:focus,.field select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+  .hint{font-size:11px;color:#9ca3af;margin-top:5px}
+  .hint a{color:#2563eb;text-decoration:none}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{width:100%;padding:12px;font-size:15px;font-weight:600;background:#1d4ed8;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn:hover{background:#1e40af}
+  .btn:disabled{background:#9ca3af;cursor:not-allowed}
+  .progress-bar{height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin:14px 0 8px}
+  .pfill{height:100%;background:#2563eb;border-radius:3px;transition:width .5s ease}
+  .smsg{font-size:13px;color:#6b7280;text-align:center;padding:4px 0}
+  .tx-wrap{max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:14px;background:#fafafa}
+  .utt{margin-bottom:14px;display:flex;gap:10px}
+  .sbadge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px}
+  .s0{background:#dbeafe;color:#1e40af}
+  .s1{background:#dcfce7;color:#15803d}
+  .s2{background:#fef3c7;color:#92400e}
+  .s3{background:#fce7f3;color:#9d174d}
+  .utt-text{font-size:14px;color:#111;line-height:1.6}
+  .utt-time{font-size:11px;color:#9ca3af;margin-top:2px}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .mbox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px}
+  .mlbl{font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:500}
+  .mval{font-size:26px;font-weight:700;line-height:1}
+  .msub{font-size:11px;color:#6b7280;margin-top:2px}
+  .sg{color:#16a34a}.sm{color:#d97706}.sb{color:#dc2626}
+  .summary{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;font-size:14px;color:#0c4a6e;line-height:1.6;margin-bottom:12px}
+  .keym{background:#fff7ed;border-left:3px solid #f97316;padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:#9a3412;line-height:1.5;margin-bottom:14px}
+  .keym strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;color:#ea580c}
+  .tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid #e5e7eb}
+  .tab{font-size:13px;padding:8px 16px;border:none;background:transparent;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:all .15s}
+  .tab:hover{color:#374151}
+  .tab.active{color:#1d4ed8;border-bottom-color:#1d4ed8}
+  .tp{display:none}
+  .tp.active{display:block}
+  .li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f3f4f6}
+  .li:last-child{border-bottom:none}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .dr{background:#ef4444}.da{background:#f59e0b}.dg{background:#22c55e}.db{background:#3b82f6}
+  .it{font-size:14px;color:#111;line-height:1.5}
+  .is{font-size:11px;color:#9ca3af;margin-top:2px}
+  .hidden{display:none}
+  .rset{font-size:12px;color:#6b7280;background:none;border:1px solid #d1d5db;border-radius:6px;cursor:pointer;padding:5px 12px}
+  .rset:hover{background:#f3f4f6}
+  .errbox{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;font-size:13px;color:#dc2626}
+  .toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📞 Call Analysis Tool</h1>
+  <div class="sub">Upload recording → speaker-labelled transcript → Claude AI analysis</div>
+
+  <div class="steps">
+    <div class="step active" id="step1"><span class="num">01</span>Upload & configure</div>
+    <div class="step" id="step2"><span class="num">02</span>Transcription</div>
+    <div class="step" id="step3"><span class="num">03</span>AI Analysis</div>
+  </div>
+
+  <div id="p-upload">
+    <div class="card">
+      <div class="card-lbl">Call recording</div>
+      <div class="upload-zone" id="uzone" onclick="document.getElementById('finput').click()">
+        <div class="upload-icon">🎙️</div>
+        <div class="mt" id="umain">Click to upload audio file</div>
+        <div class="st">MP3, WAV, M4A, MP4, OGG — max 150MB</div>
+      </div>
+      <input type="file" id="finput" accept="audio/*,video/mp4" onchange="handleFile(this)">
+    </div>
+
+    <div class="card">
+      <div class="card-lbl">API Keys</div>
+      <div class="field">
+        <label>AssemblyAI API Key *</label>
+        <input type="password" id="aai-key" placeholder="Your AssemblyAI key" oninput="chkBtn()">
+        <div class="hint">Free at <a href="https://assemblyai.com" target="_blank">assemblyai.com</a> — 100 hours free</div>
+      </div>
+      <div class="field" style="margin:0">
+        <label>Anthropic (Claude) API Key *</label>
+        <input type="password" id="ant-key" placeholder="sk-ant-..." oninput="chkBtn()">
+        <div class="hint">From <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-lbl">Call context (optional)</div>
+      <div class="two-col">
+        <div class="field" style="margin:0">
+          <label>Call type</label>
+          <select id="ctype">
+            <option value="clinic lead follow-up call">Clinic lead follow-up</option>
+            <option value="sales enquiry call">Sales enquiry</option>
+            <option value="appointment booking call">Appointment booking</option>
+            <option value="customer support call">Customer support</option>
+            <option value="cold outreach call">Cold outreach</option>
+            <option value="business call">Other</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Agent name</label>
+          <input type="text" id="aname" placeholder="e.g. Priya">
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px;margin-bottom:0">
+        <label>Business / clinic name</label>
+        <input type="text" id="bname" placeholder="e.g. Viva Beauty & Wellness, Bangalore">
+      </div>
+    </div>
+    <button class="btn" id="sbtn" onclick="startProcess()" disabled>🚀 Transcribe & Analyse Call</button>
+  </div>
+
+  <div id="p-proc" class="hidden">
+    <div class="card">
+      <div class="card-lbl" id="proc-lbl">Uploading audio...</div>
+      <div class="progress-bar"><div class="pfill" id="pfill" style="width:8%"></div></div>
+      <div class="smsg" id="smsg">Please wait...</div>
+    </div>
+  </div>
+
+  <div id="p-result" class="hidden">
+    <div class="card">
+      <div class="toprow">
+        <div class="card-lbl" style="margin:0">Transcript — speaker labelled</div>
+        <button class="rset" onclick="resetAll()">+ New Analysis</button>
+      </div>
+      <div class="tx-wrap" id="txwrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-lbl">Claude AI Analysis</div>
+      <div id="an-loading">
+        <div class="progress-bar"><div class="pfill" id="apfill" style="width:15%"></div></div>
+        <div class="smsg">Analysing call with Claude...</div>
+      </div>
+      <div id="an-content" class="hidden"></div>
+      <div id="an-error" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let audioFile=null;
+function handleFile(i){if(!i.files[0])return;audioFile=i.files[0];document.getElementById('uzone').classList.add('has-file');document.getElementById('umain').innerHTML='<span class="fn">✅ '+audioFile.name+'</span>';chkBtn()}
+function chkBtn(){const f=!!audioFile,a=document.getElementById('aai-key').value.trim().length>5,b=document.getElementById('ant-key').value.trim().length>10;document.getElementById('sbtn').disabled=!(f&&a&&b)}
+function setStep(n){[1,2,3].forEach(i=>{const e=document.getElementById('step'+i);e.className='step'+(i<n?' done':i===n?' active':'')})}
+function setProg(p,m){document.getElementById('pfill').style.width=p+'%';document.getElementById('smsg').textContent=m}
+function fmtT(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(''+(s%60)).padStart(2,'0')}
+
+async function startProcess(){
+  const aaiKey=document.getElementById('aai-key').value.trim();
+  const antKey=document.getElementById('ant-key').value.trim();
+  document.getElementById('p-upload').classList.add('hidden');
+  document.getElementById('p-proc').classList.remove('hidden');
+  setStep(2);
+  try{
+    setProg(12,'Uploading audio file...');
+    const fd=new FormData();fd.append('audio',audioFile);
+    const up=await fetch('/api/upload',{method:'POST',headers:{'x-assemblyai-key':aaiKey},body:fd});
+    if(!up.ok){const e=await up.json();throw new Error('Upload failed: '+(e.error||up.status))}
+    const{upload_url}=await up.json();
+
+    setProg(28,'Submitting for transcription...');
+    const tx=await fetch('/api/transcript',{method:'POST',headers:{'x-assemblyai-key':aaiKey,'content-type':'application/json'},body:JSON.stringify({audio_url:upload_url,speaker_labels:true,language_detection:true})});
+    if(!tx.ok){const e=await tx.json();throw new Error('Transcript request failed: '+(e.error||tx.status))}
+    const{id}=await tx.json();
+
+    setProg(38,'Transcribing... (1–3 minutes)');
+    let result,attempts=0;
+    while(true){
+      await new Promise(r=>setTimeout(r,4000));
+      attempts++;
+      const poll=await fetch('/api/transcript/'+id,{headers:{'x-assemblyai-key':aaiKey}});
+      result=await poll.json();
+      if(result.status==='completed')break;
+      if(result.status==='error')throw new Error('Transcription error: '+(result.error||'unknown'));
+      const p=Math.min(38+attempts*5,88);
+      setProg(p,'Transcribing... ('+Math.round(p)+'%)');
+    }
+    setProg(100,'Done! Building results...');
+    await new Promise(r=>setTimeout(r,500));
+    showResults(result,antKey);
+  }catch(err){
+    document.getElementById('proc-lbl').textContent='Error';
+    document.getElementById('smsg').style.color='#dc2626';
+    document.getElementById('smsg').textContent='❌ '+err.message;
+  }
+}
+
+function showResults(result,antKey){
+  document.getElementById('p-proc').classList.add('hidden');
+  document.getElementById('p-result').classList.remove('hidden');
+  setStep(3);
+  const wrap=document.getElementById('txwrap');
+  const utts=result.utterances||[];
+  const spks=[...new Set(utts.map(u=>u.speaker))];
+  if(!utts.length){wrap.innerHTML='<div style="font-size:14px;color:#666">'+(result.text||'No transcript available')+'</div>';return;}
+  wrap.innerHTML=utts.map(u=>{const i=spks.indexOf(u.speaker);return`<div class="utt"><span class="sbadge s${i%4}">${i===0?'Agent':'Caller'} ${u.speaker}</span><div><div class="utt-text">${u.text}</div><div class="utt-time">${fmtT(u.start)}</div></div></div>`}).join('');
+  runAnalysis(utts,spks,antKey);
+}
+
+async function runAnalysis(utts,spks,antKey){
+  const ctype=document.getElementById('ctype').value;
+  const aname=document.getElementById('aname').value.trim()||'the agent';
+  const bname=document.getElementById('bname').value.trim()||'the business';
+  const prog=document.getElementById('apfill');
+  let pct=15;
+  const ticker=setInterval(()=>{pct=Math.min(pct+2,88);prog.style.width=pct+'%'},600);
+  const txText=utts.map(u=>(spks.indexOf(u.speaker)===0?'Agent':'Caller')+': '+u.text).join('\n');
+
+  const prompt=`You are a call quality analyst for ${ctype}s at ${bname}. Agent: ${aname}.
+
+Analyse this transcript and return ONLY a JSON object (no markdown, no explanation):
+
+TRANSCRIPT:
+${txText}
+
+Return exactly this JSON:
+{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","issues":[{"severity":"high|medium|low","text":"<issue>"}],"strengths":["<strength>"],"script_gaps":["<gap>"],"recommendations":["<action>"],"lead_outcome":"<Converted|Interested|Lost|Unknown>"}`;
+
+  try{
+    const resp=await fetch('/api/analyse',{method:'POST',headers:{'x-anthropic-key':antKey,'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    clearInterval(ticker);prog.style.width='100%';
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'Claude API error '+resp.status)}
+    const data=await resp.json();
+    const raw=data.content.map(c=>c.text||'').join('');
+    let a;
+    try{a=JSON.parse(raw.replace(/```json|```/g,'').trim())}catch(e){throw new Error('Parse error: '+raw.substring(0,200))}
+
+    document.getElementById('an-loading').classList.add('hidden');
+    document.getElementById('an-content').classList.remove('hidden');
+    const sc=a.score;
+    const scls=sc>=75?'sg':sc>=50?'sm':'sb';
+    const dc=s=>s==='high'?'dr':s==='medium'?'da':'dg';
+    const obg={Converted:'#f0fdf4',Interested:'#eff6ff',Lost:'#fef2f2',Unknown:'#f9fafb'};
+    const otx={Converted:'#15803d',Interested:'#1d4ed8',Lost:'#dc2626',Unknown:'#6b7280'};
+    const out=a.lead_outcome||'Unknown';
+
+    document.getElementById('an-content').innerHTML=`
+      <div class="metrics">
+        <div class="mbox"><div class="mlbl">Call score</div><div class="mval ${scls}">${sc}</div><div class="msub">${a.score_label}</div></div>
+        <div class="mbox"><div class="mlbl">Talk ratio</div><div style="font-size:13px;font-weight:600;margin-top:6px;line-height:1.5">${a.talk_ratio||'N/A'}</div></div>
+        <div class="mbox"><div class="mlbl">Lead outcome</div><div style="margin-top:6px;display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;background:${obg[out]};color:${otx[out]}">${out}</div></div>
+      </div>
+      <div class="summary">${a.summary}</div>
+      ${a.key_moment?`<div class="keym"><strong>Key moment</strong>${a.key_moment}</div>`:''}
+      <div class="tabs">
+        <button class="tab active" onclick="swTab(this,'ti')">Issues (${(a.issues||[]).length})</button>
+        <button class="tab" onclick="swTab(this,'ts')">Script gaps</button>
+        <button class="tab" onclick="swTab(this,'tst')">Strengths</button>
+        <button class="tab" onclick="swTab(this,'tr')">Recommendations</button>
+      </div>
+      <div id="ti" class="tp active">${(a.issues||[]).length?(a.issues||[]).map(i=>`<div class="li"><div class="dot ${dc(i.severity)}"></div><div><div class="it">${i.text}</div><div class="is">${i.severity} severity</div></div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No major issues ✅</div>'}</div>
+      <div id="ts" class="tp">${(a.script_gaps||[]).length?(a.script_gaps||[]).map(g=>`<div class="li"><div class="dot da"></div><div class="it">${g}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No gaps detected</div>'}</div>
+      <div id="tst" class="tp">${(a.strengths||[]).length?(a.strengths||[]).map(s=>`<div class="li"><div class="dot dg"></div><div class="it">${s}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">None identified</div>'}</div>
+      <div id="tr" class="tp">${(a.recommendations||[]).length?(a.recommendations||[]).map(r=>`<div class="li"><div class="dot db"></div><div class="it">${r}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No recommendations</div>'}</div>
+    `;
+  }catch(err){
+    clearInterval(ticker);
+    document.getElementById('an-loading').classList.add('hidden');
+    document.getElementById('an-error').classList.remove('hidden');
+    document.getElementById('an-error').innerHTML='<div class="errbox">❌ Analysis failed: '+err.message+'</div>';
+  }
+}
+
+function swTab(btn,id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active')}
+
+function resetAll(){
+  audioFile=null;
+  document.getElementById('p-upload').classList.remove('hidden');
+  document.getElementById('p-proc').classList.add('hidden');
+  document.getElementById('p-result').classList.add('hidden');
+  document.getElementById('an-loading').classList.remove('hidden');
+  document.getElementById('an-content').classList.add('hidden');
+  document.getElementById('an-error').classList.add('hidden');
+  document.getElementById('uzone').classList.remove('has-file');
+  document.getElementById('umain').textContent='Click to upload audio file';
+  document.getElementById('finput').value='';
+  document.getElementById('sbtn').disabled=true;
+  setStep(1);
+}
+</script>
+</body>
+</html>
