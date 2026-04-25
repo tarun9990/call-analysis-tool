@@ -1,29 +1,28 @@
 const express = require('express');
 const multer = require('multer');
 const fetch = require('node-fetch');
-const FormData = require('form-data');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 150 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 150 * 1024 * 1024 } });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ── AssemblyAI: upload audio file ──────────────────────────────────────────
+const ASSEMBLYAI_KEY = process.env.ASSEMBLYAI_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY;
+
 app.post('/api/upload', upload.single('audio'), async (req, res) => {
   try {
-    const apiKey = req.headers['x-assemblyai-key'];
+    const apiKey = ASSEMBLYAI_KEY;
     if (!apiKey) return res.status(400).json({ error: 'Missing AssemblyAI key' });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const fileBuffer = fs.readFileSync(req.file.path);
     const response = await fetch('https://api.assemblyai.com/v2/upload', {
       method: 'POST',
       headers: { authorization: apiKey, 'content-type': 'application/octet-stream' },
-      body: fileBuffer
+      body: req.file.buffer
     });
-    fs.unlinkSync(req.file.path);
     const data = await response.json();
     if (!response.ok) return res.status(response.status).json(data);
     res.json(data);
@@ -32,10 +31,9 @@ app.post('/api/upload', upload.single('audio'), async (req, res) => {
   }
 });
 
-// ── AssemblyAI: submit transcript ──────────────────────────────────────────
 app.post('/api/transcript', async (req, res) => {
   try {
-    const apiKey = req.headers['x-assemblyai-key'];
+    const apiKey = ASSEMBLYAI_KEY;
     const response = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: { authorization: apiKey, 'content-type': 'application/json' },
@@ -48,10 +46,9 @@ app.post('/api/transcript', async (req, res) => {
   }
 });
 
-// ── AssemblyAI: poll transcript status ────────────────────────────────────
 app.get('/api/transcript/:id', async (req, res) => {
   try {
-    const apiKey = req.headers['x-assemblyai-key'];
+    const apiKey = ASSEMBLYAI_KEY;
     const response = await fetch(`https://api.assemblyai.com/v2/transcript/${req.params.id}`, {
       headers: { authorization: apiKey }
     });
@@ -62,10 +59,9 @@ app.get('/api/transcript/:id', async (req, res) => {
   }
 });
 
-// ── Anthropic Claude: analyse call ────────────────────────────────────────
 app.post('/api/analyse', async (req, res) => {
   try {
-    const apiKey = req.headers['x-anthropic-key'];
+    const apiKey = ANTHROPIC_KEY;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -82,9 +78,7 @@ app.post('/api/analyse', async (req, res) => {
   }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n✅ Call Analysis Tool running at: http://localhost:${PORT}\n`);
-  console.log('   Open this URL in your browser to use the tool.');
-  console.log('   Press Ctrl+C to stop.\n');
+  console.log(`✅ Call Analysis Tool running at http://localhost:${PORT}`);
 });
