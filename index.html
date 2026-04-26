@@ -7,7 +7,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;min-height:100vh;padding:2rem 1rem;color:#1a1a1a}
-  .container{max-width:740px;margin:0 auto}
+  .container{max-width:780px;margin:0 auto}
   h1{font-size:22px;font-weight:600;color:#111;margin-bottom:4px}
   .sub{font-size:14px;color:#666;margin-bottom:1.5rem}
   .steps{display:flex;gap:8px;margin-bottom:1.5rem}
@@ -38,54 +38,84 @@
   .progress-bar{height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin:14px 0 8px}
   .pfill{height:100%;background:#2563eb;border-radius:3px;transition:width .5s ease}
   .smsg{font-size:13px;color:#6b7280;text-align:center;padding:4px 0}
-  .tx-wrap{max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:14px;background:#fafafa}
+  .tx-wrap{max-height:300px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:14px;background:#fafafa}
   .utt{margin-bottom:14px;display:flex;gap:10px}
   .sbadge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px}
-  .s0{background:#dbeafe;color:#1e40af}
-  .s1{background:#dcfce7;color:#15803d}
-  .s2{background:#fef3c7;color:#92400e}
-  .s3{background:#fce7f3;color:#9d174d}
+  .s0{background:#dbeafe;color:#1e40af}.s1{background:#dcfce7;color:#15803d}.s2{background:#fef3c7;color:#92400e}.s3{background:#fce7f3;color:#9d174d}
   .utt-text{font-size:14px;color:#111;line-height:1.6}
   .utt-time{font-size:11px;color:#9ca3af;margin-top:2px}
+  /* Metrics */
   .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
   .mbox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px}
   .mlbl{font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:500}
   .mval{font-size:26px;font-weight:700;line-height:1}
   .msub{font-size:11px;color:#6b7280;margin-top:2px}
   .sg{color:#16a34a}.sm{color:#d97706}.sb{color:#dc2626}
-  .summary{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;font-size:14px;color:#0c4a6e;line-height:1.6;margin-bottom:12px}
+  /* Summary */
+  .summary-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;font-size:14px;color:#0c4a6e;line-height:1.6;margin-bottom:12px}
   .keym{background:#fff7ed;border-left:3px solid #f97316;padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:#9a3412;line-height:1.5;margin-bottom:14px}
   .keym strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;color:#ea580c}
-  .tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid #e5e7eb}
-  .tab{font-size:13px;padding:8px 16px;border:none;background:transparent;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:all .15s}
+  /* 3-col grid */
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  .col-card{border-radius:8px;padding:12px 14px}
+  .col-green{background:#f0fdf4;border:1px solid #bbf7d0}
+  .col-amber{background:#fffbeb;border:1px solid #fde68a}
+  .col-red{background:#fef2f2;border:1px solid #fecaca}
+  .col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .col-green .col-title{color:#15803d}
+  .col-amber .col-title{color:#92400e}
+  .col-red .col-title{color:#991b1b}
+  .col-item{font-size:13px;line-height:1.5;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.06)}
+  .col-item:last-child{border-bottom:none}
+  .col-green .col-item{color:#166534}
+  .col-amber .col-item{color:#78350f}
+  .col-red .col-item{color:#7f1d1d}
+  /* SFA Audit */
+  .sfa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .sfa-item{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px}
+  .sfa-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .sfa-text{font-size:13px;color:#111;line-height:1.6}
+  .badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px}
+  .badge-ok{background:#dcfce7;color:#15803d}
+  .badge-warn{background:#fef3c7;color:#92400e}
+  .badge-bad{background:#fee2e2;color:#991b1b}
+  /* Script */
+  .script-wrap{background:#1e1e2e;border-radius:8px;padding:16px;margin-top:0}
+  .script-line{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+  .script-speaker{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+  .sp-agent{background:#3b82f6;color:#fff}
+  .sp-caller{background:#8b5cf6;color:#fff}
+  .sp-note{background:#f59e0b;color:#fff}
+  .script-text{font-size:13px;color:#e2e8f0;line-height:1.7}
+  .script-note{font-size:12px;color:#94a3b8;font-style:italic;margin-top:3px}
+  /* Tabs */
+  .tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid #e5e7eb;overflow-x:auto}
+  .tab{font-size:13px;padding:8px 14px;border:none;background:transparent;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:all .15s;white-space:nowrap}
   .tab:hover{color:#374151}
   .tab.active{color:#1d4ed8;border-bottom-color:#1d4ed8}
   .tp{display:none}
   .tp.active{display:block}
-  .li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f3f4f6}
-  .li:last-child{border-bottom:none}
-  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
-  .dr{background:#ef4444}.da{background:#f59e0b}.dg{background:#22c55e}.db{background:#3b82f6}
-  .it{font-size:14px;color:#111;line-height:1.5}
-  .is{font-size:11px;color:#9ca3af;margin-top:2px}
+  /* Utils */
   .hidden{display:none}
   .rset{font-size:12px;color:#6b7280;background:none;border:1px solid #d1d5db;border-radius:6px;cursor:pointer;padding:5px 12px}
   .rset:hover{background:#f3f4f6}
   .errbox{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;font-size:13px;color:#dc2626}
   .toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .section-title{font-size:13px;font-weight:600;color:#111;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>📞 Call Analysis Tool</h1>
-  <div class="sub">Upload recording → speaker-labelled transcript → Claude AI analysis</div>
+  <h1>📞 Call Analysis Tool — SFA Framework™</h1>
+  <div class="sub">Upload recording → speaker transcript → AI sales audit + ideal script</div>
 
   <div class="steps">
-    <div class="step active" id="step1"><span class="num">01</span>Upload & configure</div>
+    <div class="step active" id="step1"><span class="num">01</span>Upload</div>
     <div class="step" id="step2"><span class="num">02</span>Transcription</div>
-    <div class="step" id="step3"><span class="num">03</span>AI Analysis</div>
+    <div class="step" id="step3"><span class="num">03</span>SFA Analysis</div>
   </div>
 
+  <!-- UPLOAD -->
   <div id="p-upload">
     <div class="card">
       <div class="card-lbl">Call recording</div>
@@ -96,19 +126,19 @@
       </div>
       <input type="file" id="finput" accept="audio/*,video/mp4" onchange="handleFile(this)">
     </div>
-
     <div class="card">
-      <div class="card-lbl">Call context (optional)</div>
+      <div class="card-lbl">Call context</div>
       <div class="two-col">
         <div class="field" style="margin:0">
-          <label>Call type</label>
+          <label>Industry / Call type</label>
           <select id="ctype">
-            <option value="clinic lead follow-up call">Clinic lead follow-up</option>
-            <option value="sales enquiry call">Sales enquiry</option>
-            <option value="appointment booking call">Appointment booking</option>
-            <option value="customer support call">Customer support</option>
-            <option value="cold outreach call">Cold outreach</option>
-            <option value="business call">Other</option>
+            <option value="skin clinic / aesthetic services">Skin Clinic / Aesthetic</option>
+            <option value="hair clinic">Hair Clinic</option>
+            <option value="wellness clinic">Wellness Clinic</option>
+            <option value="slimming clinic">Slimming Clinic</option>
+            <option value="dental clinic">Dental Clinic</option>
+            <option value="agency sales">Agency Sales</option>
+            <option value="general sales">General Sales</option>
           </select>
         </div>
         <div class="field" style="margin:0">
@@ -124,6 +154,7 @@
     <button class="btn" id="sbtn" onclick="startProcess()">🚀 Transcribe & Analyse Call</button>
   </div>
 
+  <!-- PROCESSING -->
   <div id="p-proc" class="hidden">
     <div class="card">
       <div class="card-lbl" id="proc-lbl">Processing...</div>
@@ -132,19 +163,21 @@
     </div>
   </div>
 
+  <!-- RESULTS -->
   <div id="p-result" class="hidden">
     <div class="card">
       <div class="toprow">
-        <div class="card-lbl" style="margin:0">Transcript — speaker labelled</div>
+        <div class="card-lbl" style="margin:0">Transcript</div>
         <button class="rset" onclick="resetAll()">+ New Analysis</button>
       </div>
       <div class="tx-wrap" id="txwrap"></div>
     </div>
+
     <div class="card">
-      <div class="card-lbl">Claude AI Analysis</div>
+      <div class="card-lbl">SFA Framework™ Analysis</div>
       <div id="an-loading">
         <div class="progress-bar"><div class="pfill" id="apfill" style="width:15%"></div></div>
-        <div class="smsg">Analysing call with Claude...</div>
+        <div class="smsg">Analysing with SFA Framework...</div>
       </div>
       <div id="an-content" class="hidden"></div>
       <div id="an-error" class="hidden"></div>
@@ -173,23 +206,21 @@ async function startProcess(){
 
     setProg(28,'Submitting for transcription...');
     const tx=await fetch('/api/transcript',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({audio_url:upload_url,speaker_labels:true,language_detection:true})});
-    if(!tx.ok){const e=await tx.json();throw new Error('Transcript request failed: '+(e.error||tx.status))}
+    if(!tx.ok){const e=await tx.json();throw new Error('Transcript failed: '+(e.error||tx.status))}
     const{id}=await tx.json();
 
-    setProg(38,'Transcribing... (1–3 minutes)');
+    setProg(38,'Transcribing... (1–3 min)');
     let result,attempts=0;
     while(true){
-      await new Promise(r=>setTimeout(r,4000));
-      attempts++;
+      await new Promise(r=>setTimeout(r,4000));attempts++;
       const poll=await fetch('/api/transcript/'+id);
       result=await poll.json();
       if(result.status==='completed')break;
       if(result.status==='error')throw new Error('Transcription error: '+(result.error||'unknown'));
-      const p=Math.min(38+attempts*5,88);
-      setProg(p,'Transcribing... ('+Math.round(p)+'%)');
+      setProg(Math.min(38+attempts*5,88),'Transcribing... please wait');
     }
     setProg(100,'Done!');
-    await new Promise(r=>setTimeout(r,500));
+    await new Promise(r=>setTimeout(r,400));
     showResults(result);
   }catch(err){
     document.getElementById('proc-lbl').textContent='Error';
@@ -205,53 +236,164 @@ function showResults(result){
   const wrap=document.getElementById('txwrap');
   const utts=result.utterances||[];
   const spks=[...new Set(utts.map(u=>u.speaker))];
-  if(!utts.length){wrap.innerHTML='<div style="font-size:14px;color:#666">'+(result.text||'No transcript')+'</div>';return;}
-  wrap.innerHTML=utts.map(u=>{const i=spks.indexOf(u.speaker);return`<div class="utt"><span class="sbadge s${i%4}">${i===0?'Agent':'Caller'} ${u.speaker}</span><div><div class="utt-text">${u.text}</div><div class="utt-time">${fmtT(u.start)}</div></div></div>`}).join('');
-  runAnalysis(utts,spks);
+  if(!utts.length){wrap.innerHTML='<div style="font-size:14px;color:#666">'+(result.text||'No transcript')+'</div>';}
+  else{wrap.innerHTML=utts.map(u=>{const i=spks.indexOf(u.speaker);return`<div class="utt"><span class="sbadge s${i%4}">${i===0?'Agent':'Caller'} ${u.speaker}</span><div><div class="utt-text">${u.text}</div><div class="utt-time">${fmtT(u.start)}</div></div></div>`}).join('');}
+  runAnalysis(utts,spks,result.text);
 }
 
-async function runAnalysis(utts,spks){
+async function runAnalysis(utts,spks,fullText){
   const ctype=document.getElementById('ctype').value;
   const aname=document.getElementById('aname').value.trim()||'the agent';
   const bname=document.getElementById('bname').value.trim()||'the business';
   const prog=document.getElementById('apfill');
   let pct=15;
   const ticker=setInterval(()=>{pct=Math.min(pct+2,88);prog.style.width=pct+'%'},600);
-  const txText=utts.map(u=>(spks.indexOf(u.speaker)===0?'Agent':'Caller')+': '+u.text).join('\n');
-  const prompt=`You are a call quality analyst for ${ctype}s at ${bname}. Agent: ${aname}.\n\nAnalyse this transcript and return ONLY a JSON object (no markdown):\n\nTRANSCRIPT:\n${txText}\n\nReturn exactly this JSON:\n{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","issues":[{"severity":"high|medium|low","text":"<issue>"}],"strengths":["<strength>"],"script_gaps":["<gap>"],"recommendations":["<action>"],"lead_outcome":"<Converted|Interested|Lost|Unknown>"}`;
+  const txText=utts.length>0?utts.map(u=>(spks.indexOf(u.speaker)===0?'Agent':'Caller')+': '+u.text).join('\n'):(fullText||'No transcript');
+
+  const prompt=`You are a Sales Call Analysis Expert trained in the SFA Framework™.
+
+CONTEXT: This is a ${ctype} sales call for ${bname}. Agent: ${aname}.
+Goal: Convert inquiry into appointment/sale.
+
+TRANSCRIPT:
+${txText}
+
+Analyse using SFA Framework. Return ONLY valid JSON (no markdown, no explanation outside JSON):
+
+{
+  "score": <0-100>,
+  "score_label": "<Poor|Average|Good|Excellent>",
+  "talk_ratio": "<e.g. Agent 60% / Caller 40%>",
+  "lead_outcome": "<Converted|Interested|Lost|Unknown>",
+  "summary": "<2-3 sentence summary of the call>",
+  "key_moment": "<single most important turning point with a short quote>",
+  "done_well": ["<✅ thing 1>", "<✅ thing 2>", "<✅ thing 3>"],
+  "to_improve": ["<⚠️ thing 1>", "<⚠️ thing 2>", "<⚠️ thing 3>"],
+  "missing": ["<❌ thing 1>", "<❌ thing 2>", "<❌ thing 3>"],
+  "sfa_audit": {
+    "discovery": "<Did agent deeply understand client? What questions asked vs missed? Was pain identified?>",
+    "pitch_clarity": "<Was solution benefit-driven or technical? Was there structured flow?>",
+    "money_map": "<MOST IMPORTANT: Did agent explain timeline, results, transformation journey, ROI clarity? Highlight clearly if missing>",
+    "pricing_strategy": "<Was value built before price? Was price justified? Any packaging?>",
+    "objection_handling": "<Were objections handled confidently? Logical vs emotional?>",
+    "closing": "<Did agent control next step? Was there urgency? Was slot/decision asked?>"
+  },
+  "ideal_script": [
+    {
+      "stage": "<stage name e.g. Opening / Discovery / Pitch / Money Map / Pricing / Objection / Close>",
+      "what_happened": "<what the agent actually said or did>",
+      "what_should_happen": "<what should have been said — give exact word-for-word sample dialogue>",
+      "lines": [
+        {"speaker": "Agent", "text": "<exact sample line>"},
+        {"speaker": "Caller", "text": "<expected caller response>"},
+        {"speaker": "Agent", "text": "<agent follow-up>"}
+      ]
+    }
+  ]
+}`;
+
   try{
-    const resp=await fetch('/api/analyse',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    const resp=await fetch('/api/analyse',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:3000,messages:[{role:'user',content:prompt}]})});
     clearInterval(ticker);prog.style.width='100%';
     if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'Claude API error '+resp.status)}
     const data=await resp.json();
     const raw=data.content.map(c=>c.text||'').join('');
-    let a;try{a=JSON.parse(raw.replace(/```json|```/g,'').trim())}catch(e){throw new Error('Parse error')}
+    let a;
+    try{a=JSON.parse(raw.replace(/```json|```/g,'').trim())}
+    catch(e){throw new Error('Parse error — raw: '+raw.substring(0,300))}
+
     document.getElementById('an-loading').classList.add('hidden');
     document.getElementById('an-content').classList.remove('hidden');
+
     const sc=a.score;
     const scls=sc>=75?'sg':sc>=50?'sm':'sb';
-    const dc=s=>s==='high'?'dr':s==='medium'?'da':'dg';
     const obg={Converted:'#f0fdf4',Interested:'#eff6ff',Lost:'#fef2f2',Unknown:'#f9fafb'};
     const otx={Converted:'#15803d',Interested:'#1d4ed8',Lost:'#dc2626',Unknown:'#6b7280'};
     const out=a.lead_outcome||'Unknown';
+
+    // SFA audit badges
+    const sfaItems = a.sfa_audit||{};
+    const sfaLabels = {
+      discovery:'🔍 Discovery',
+      pitch_clarity:'📢 Pitch Clarity',
+      money_map:'💰 Money Map',
+      pricing_strategy:'🏷️ Pricing Strategy',
+      objection_handling:'🛡️ Objection Handling',
+      closing:'🎯 Closing'
+    };
+
+    // Ideal script lines
+    const scriptStages = a.ideal_script||[];
+
     document.getElementById('an-content').innerHTML=`
+      <!-- Metrics -->
       <div class="metrics">
-        <div class="mbox"><div class="mlbl">Call score</div><div class="mval ${scls}">${sc}</div><div class="msub">${a.score_label}</div></div>
-        <div class="mbox"><div class="mlbl">Talk ratio</div><div style="font-size:13px;font-weight:600;margin-top:6px;line-height:1.5">${a.talk_ratio||'N/A'}</div></div>
-        <div class="mbox"><div class="mlbl">Lead outcome</div><div style="margin-top:6px;display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;background:${obg[out]};color:${otx[out]}">${out}</div></div>
+        <div class="mbox"><div class="mlbl">Call Score</div><div class="mval ${scls}">${sc}</div><div class="msub">${a.score_label}</div></div>
+        <div class="mbox"><div class="mlbl">Talk Ratio</div><div style="font-size:13px;font-weight:600;margin-top:6px;line-height:1.5">${a.talk_ratio||'N/A'}</div></div>
+        <div class="mbox"><div class="mlbl">Lead Outcome</div><div style="margin-top:6px;display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;background:${obg[out]};color:${otx[out]}">${out}</div></div>
       </div>
-      <div class="summary">${a.summary}</div>
-      ${a.key_moment?`<div class="keym"><strong>Key moment</strong>${a.key_moment}</div>`:''}
+
+      <!-- Summary -->
+      <div class="summary-box">${a.summary}</div>
+      ${a.key_moment?`<div class="keym"><strong>⚡ Key Moment</strong>${a.key_moment}</div>`:''}
+
+      <!-- Tabs -->
       <div class="tabs">
-        <button class="tab active" onclick="swTab(this,'ti')">Issues (${(a.issues||[]).length})</button>
-        <button class="tab" onclick="swTab(this,'ts')">Script gaps</button>
-        <button class="tab" onclick="swTab(this,'tst')">Strengths</button>
-        <button class="tab" onclick="swTab(this,'tr')">Recommendations</button>
+        <button class="tab active" onclick="swTab(this,'t1')">📊 Audit</button>
+        <button class="tab" onclick="swTab(this,'t2')">✅ ⚠️ ❌ Summary</button>
+        <button class="tab" onclick="swTab(this,'t3')">📝 Ideal Script</button>
       </div>
-      <div id="ti" class="tp active">${(a.issues||[]).length?(a.issues||[]).map(i=>`<div class="li"><div class="dot ${dc(i.severity)}"></div><div><div class="it">${i.text}</div><div class="is">${i.severity} severity</div></div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No major issues ✅</div>'}</div>
-      <div id="ts" class="tp">${(a.script_gaps||[]).length?(a.script_gaps||[]).map(g=>`<div class="li"><div class="dot da"></div><div class="it">${g}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No gaps detected</div>'}</div>
-      <div id="tst" class="tp">${(a.strengths||[]).length?(a.strengths||[]).map(s=>`<div class="li"><div class="dot dg"></div><div class="it">${s}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">None identified</div>'}</div>
-      <div id="tr" class="tp">${(a.recommendations||[]).length?(a.recommendations||[]).map(r=>`<div class="li"><div class="dot db"></div><div class="it">${r}</div></div>`).join(''):'<div style="font-size:14px;color:#666;padding:8px 0">No recommendations</div>'}</div>`;
+
+      <!-- TAB 1: SFA Audit -->
+      <div id="t1" class="tp active">
+        <div class="sfa-grid">
+          ${Object.entries(sfaLabels).map(([key,label])=>`
+            <div class="sfa-item">
+              <div class="sfa-label">${label}</div>
+              <div class="sfa-text">${sfaItems[key]||'Not assessed'}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- TAB 2: Done Well / Improve / Missing -->
+      <div id="t2" class="tp">
+        <div class="three-col">
+          <div class="col-card col-green">
+            <div class="col-title">✅ Done Well</div>
+            ${(a.done_well||[]).map(i=>`<div class="col-item">${i}</div>`).join('')}
+          </div>
+          <div class="col-card col-amber">
+            <div class="col-title">⚠️ To Improve</div>
+            ${(a.to_improve||[]).map(i=>`<div class="col-item">${i}</div>`).join('')}
+          </div>
+          <div class="col-card col-red">
+            <div class="col-title">❌ Missing</div>
+            ${(a.missing||[]).map(i=>`<div class="col-item">${i}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Ideal Script -->
+      <div id="t3" class="tp">
+        <div style="font-size:13px;color:#6b7280;margin-bottom:12px">This is how the call <strong>should have gone</strong> — stage by stage ideal script:</div>
+        ${scriptStages.map((stage,idx)=>`
+          <div style="margin-bottom:16px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:4px">Stage ${idx+1}: ${stage.stage}</div>
+            ${stage.what_happened?`<div style="font-size:12px;color:#dc2626;background:#fef2f2;border-radius:6px;padding:8px 10px;margin-bottom:6px">❌ What happened: ${stage.what_happened}</div>`:''}
+            ${stage.what_should_happen?`<div style="font-size:12px;color:#15803d;background:#f0fdf4;border-radius:6px;padding:8px 10px;margin-bottom:8px">✅ What should happen: ${stage.what_should_happen}</div>`:''}
+            <div class="script-wrap">
+              ${(stage.lines||[]).map(line=>`
+                <div class="script-line">
+                  <span class="script-speaker ${line.speaker==='Agent'?'sp-agent':line.speaker==='Caller'?'sp-caller':'sp-note'}">${line.speaker}</span>
+                  <div class="script-text">${line.text}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
   }catch(err){
     clearInterval(ticker);
     document.getElementById('an-loading').classList.add('hidden');
@@ -259,6 +401,7 @@ async function runAnalysis(utts,spks){
     document.getElementById('an-error').innerHTML='<div class="errbox">❌ '+err.message+'</div>';
   }
 }
+
 function swTab(btn,id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active')}
 function resetAll(){audioFile=null;document.getElementById('p-upload').classList.remove('hidden');document.getElementById('p-proc').classList.add('hidden');document.getElementById('p-result').classList.add('hidden');document.getElementById('an-loading').classList.remove('hidden');document.getElementById('an-content').classList.add('hidden');document.getElementById('an-error').classList.add('hidden');document.getElementById('uzone').classList.remove('has-file');document.getElementById('umain').textContent='Click to upload audio file';document.getElementById('finput').value='';setStep(1);}
 </script>
