@@ -218,17 +218,7 @@ async function runAnalysis(utts,spks){
   let pct=15;
   const ticker=setInterval(()=>{pct=Math.min(pct+2,88);prog.style.width=pct+'%'},600);
   const txText=utts.map(u=>(spks.indexOf(u.speaker)===0?'Agent':'Caller')+': '+u.text).join('\n');
-  const prompt=`You are a Sales Call Analysis Expert trained in the SFA Framework™.
-
-CONTEXT: This is a ${ctype} sales call for ${bname}. Agent name: ${aname}.
-Goal: Convert inquiry into appointment/sale.
-
-TRANSCRIPT:
-${txText}
-
-Analyse this transcript using the SFA Framework and return ONLY a JSON object (no markdown, no explanation):
-
-{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","lead_outcome":"<Converted|Interested|Lost|Unknown>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","done_well":["<well 1>","<well 2>","<well 3>"],"to_improve":["<improve 1>","<improve 2>","<improve 3>"],"missing":["<missing 1>","<missing 2>","<missing 3>"],"sfa_audit":{"discovery":"<agent understood client pain?>","pitch_clarity":"<benefit-driven or technical?>","money_map":"<timeline, results, ROI clarity — highlight if missing>","pricing_strategy":"<value built before price?>","objection_handling":"<how objections handled?>","closing":"<next step controlled, urgency, slot asked?>"},"improved_script":"<rewrite key parts as high-converting script — what agent SHOULD have said>"}`;
+  const prompt=`You are a call quality analyst for ${ctype}s at ${bname}. Agent: ${aname}.\n\nAnalyse this transcript and return ONLY a JSON object (no markdown):\n\nTRANSCRIPT:\n${txText}\n\nReturn exactly this JSON:\n{"score":<0-100>,"score_label":"<Poor|Average|Good|Excellent>","talk_ratio":"<e.g. Agent 60% / Caller 40%>","summary":"<2-3 sentence summary>","key_moment":"<most important moment with short quote>","issues":[{"severity":"high|medium|low","text":"<issue>"}],"strengths":["<strength>"],"script_gaps":["<gap>"],"recommendations":["<action>"],"lead_outcome":"<Converted|Interested|Lost|Unknown>"}`;
   try{
     const resp=await fetch('/api/analyse',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
     clearInterval(ticker);prog.style.width='100%';
